@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Philosopher&display=swap">
     <link rel="icon" href="{{ url_for('static', filename='icons.png') }}" type="image/png">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-width: 320px;
+            overflow-x: hidden;
+        }
+
         /* General Styling */
         body {
             font-family: 'Comfortaa', cursive;
@@ -14,38 +23,48 @@
             background-image: url("{{ url_for('static', filename='background.jpg') }}");
             background-repeat: no-repeat; /* Prevent the image from repeating */
             background-size: cover;
+            background-position: center top;
             color: #5a3d2b; /* Earthy brown text */
             margin: 0;
-            padding: 30px;
+            padding: clamp(12px, 3vw, 30px);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        img {
+            max-width: 100%;
         }
 
        /* Header Styling with Background Image */
         .header {
             text-align: center;
             margin-bottom: 30px;
+            width: 100%;
+            max-width: 1200px;
             background-image: url("{{ url_for('static', filename='header.jpg') }}");
             background-size: cover;
             background-position: center;
             color: white; /* Adjust text color for better visibility on the image */
-            padding: 40px 400px; /* Add padding for spacing */
+            padding: clamp(24px, 6vw, 44px) clamp(18px, 8vw, 90px); /* Add padding for spacing */
             border-radius: 10px; /* Optional: Add rounded corners */
             box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2); /* Optional: Add a subtle shadow */
         }
 
         .header h1 {
             font-family: 'Philosopher', sans-serif;
-            font-size: 3em;
+            font-size: clamp(2.1rem, 7vw, 3rem);
             margin-bottom: 5px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Optional: Add text shadow for better readability */
         }
 
         .header p {
-            font-size: 1.1em;
+            font-size: clamp(0.95rem, 2.4vw, 1.1rem);
             margin-top: 0;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Optional: Add text shadow */
         }
 
@@ -56,6 +75,7 @@
             max-width: 1200px;
             gap: 30px;
             margin-top: 20px;
+            align-items: flex-start;
         }
 
         /* Chat Module */
@@ -63,10 +83,12 @@
             background-color: #ffe0c2; /* Light yellow chat background */
             border-radius: 15px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-            padding: 30px;
+            padding: clamp(16px, 3vw, 30px);
             display: flex;
             flex-direction: column;
-            height: 600px; /* Fixed height for scrolling */
+            height: clamp(520px, 66vh, 640px); /* Scales while keeping the chat usable */
+            width: 100%;
+            min-width: 0;
         }
 
         #user-stats {
@@ -95,6 +117,7 @@
             margin-bottom: 10px; /* Add some spacing between messages */
             align-self: flex-end; /* Align the whole container to the right */
             max-width: 75%; /* Limit width of the entire message block */
+            min-width: 0;
         }
 
         .user-message-container .user-avatar {
@@ -111,8 +134,10 @@
             padding: 12px 18px;
             border-radius: 20px;
             word-wrap: break-word;
+            overflow-wrap: anywhere;
             font-size: 1.05em;
             flex-grow: 1; /* Allow text bubble to grow */
+            min-width: 0;
         }
 
         /* Styling for bot message container (includes avatar and bubble) */
@@ -122,6 +147,7 @@
             margin-bottom: 10px; /* Add some spacing between bot replies */
             align-self: flex-start; /* Align the whole container to the left */
             max-width: 75%; /* Limit width of the entire message block */
+            min-width: 0;
         }
 
         .bot-reply-container img { /* This is the bot's avatar */
@@ -143,8 +169,10 @@
             padding: 12px 18px;
             border-radius: 20px;
             word-wrap: break-word;
+            overflow-wrap: anywhere;
             font-size: 1.05em;
             flex-grow: 1; /* Allow text bubble to grow */
+            min-width: 0;
         }
 
         /* Default user and bot bubble colors - these will be overridden by customization */
@@ -164,18 +192,19 @@
         .input-container {
             display: flex;
             align-items: center;
+            gap: 15px;
             border-top: 1px solid #d4a373; /* Sandy brown separator */
             padding-top: 20px;
         }
 
         #user-input {
             flex-grow: 1;
+            min-width: 0;
             padding: 12px;
             border: 1px solid #d4a373;
             border-radius: 25px;
             outline: none;
             font-size: 1em;
-            margin-right: 15px;
             background-color: #fff;
             color: #5a3d2b;
         }
@@ -190,6 +219,9 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3); /* Added shadow */
+            line-height: 1.25;
+            max-width: 100%;
+            white-space: normal;
         }
 
         button:hover {
@@ -198,27 +230,32 @@
 
         /* Sidebar (Quiz & Categories) */
         .sidebar {
-            flex: 0.4;
+            flex: 0 1 360px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            min-width: 280px;
+            max-width: 360px;
         }
 
         .side {
-            flex: 1;
+            flex: 1 1 0;
             display: flex;
             flex-direction: column;
             gap: 50px;
+            min-width: 0;
         }
 
         .module-container-sidebar {
             background-color: #f8f5f0;
             border-radius: 15px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-            padding: 25px;
+            padding: clamp(16px, 3vw, 25px);
             display: flex;
             flex-direction: column;
             align-items: stretch;
+            width: 100%;
+            min-width: 0;
         }
 
         .module-container-sidebar h3 {
@@ -255,6 +292,7 @@
             background-color: #fff;
             color: #5a3d2b;
             flex-grow: 1;
+            min-width: 0;
         }
 
         #quiz-container-sidebar button {
@@ -363,6 +401,7 @@
             margin: 8px 0;
             font-size: 1em;
             color: #78513a;
+            overflow-wrap: anywhere;
         }
 
         /* Categories Styling in Sidebar */
@@ -453,7 +492,9 @@
             margin-bottom: 10px;
             max-width: 75%;
             word-wrap: break-word;
+            overflow-wrap: anywhere;
             font-size: 1.05em;
+            min-width: 0;
         }
 
         .user {
@@ -490,6 +531,8 @@
             flex-grow: 1; /* Allow text bubble to grow */
             background-color: #a1887f; /* Default user bubble */
             color: #f8f0e3;
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
         .bot-reply-text {
@@ -498,6 +541,8 @@
             flex-grow: 1; /* Allow text bubble to grow */
             background-color: #e6d7b9; /* Default bot bubble */
             color: #5a3d2b;
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
 
@@ -546,9 +591,11 @@
             background-color: #f8f5f0;
             border-radius: 15px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-            padding: 25px;
+            padding: clamp(16px, 3vw, 25px);
             margin-bottom: 20px;
             text-align: center;
+            width: 100%;
+            min-width: 0;
         }
 
         #auth-container h3 {
@@ -560,7 +607,7 @@
 
         #auth-container input[type="text"],
         #auth-container input[type="password"] {
-            width: calc(100% - 20px);
+            width: 100%;
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #d4a373;
@@ -626,10 +673,12 @@
             background-color: #f8f5f0;
             border-radius: 15px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-            padding: 25px;
+            padding: clamp(16px, 3vw, 25px);
             margin-bottom: 20px;
             text-align: center;
             display: none; /* Hidden by default */
+            width: 100%;
+            min-width: 0;
         }
 
         #leaderboard-container h3 {
@@ -653,6 +702,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
             font-size: 1.1em;
             color: #5a3d2b;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
@@ -683,9 +733,12 @@
         #leaderboard-list .username {
             flex-grow: 1;
             text-align: left;
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
         #leaderboard-list .points {
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         /* Customization Section Styles */
@@ -693,9 +746,11 @@
             background-color: #f8f5f0;
             border-radius: 15px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-            padding: 25px;
+            padding: clamp(16px, 3vw, 25px);
             margin-bottom: 20px;
             text-align: center;
+            width: 100%;
+            min-width: 0;
         }
 
         #customization-container h3 {
@@ -716,9 +771,8 @@
         }
 
         .customization-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
             gap: 10px;
             margin-top: 10px;
         }
@@ -733,6 +787,7 @@
             border-radius: 10px;
             transition: all 0.2s ease;
             position: relative;
+            min-width: 0;
         }
 
         .customization-item.selected {
@@ -784,12 +839,14 @@
             background-color: #f8f5f0;
             border-radius: 15px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-            padding: 25px;
+            padding: clamp(16px, 3vw, 25px);
             margin-bottom: 20px;
             text-align: center;
             display: flex; /* Use flexbox for layout */
             flex-direction: column;
-            height: 400px; /* Fixed height for chat box */
+            height: clamp(340px, 48vh, 440px); /* Scales while keeping the chat box usable */
+            width: 100%;
+            min-width: 0;
         }
 
         #community-chat-container h3 {
@@ -823,6 +880,7 @@
 
         #community-chat-input {
             flex-grow: 1;
+            min-width: 0;
             padding: 10px;
             border: 1px solid #d4a373;
             border-radius: 20px;
@@ -868,6 +926,8 @@
             padding: 8px 12px;
             border-radius: 15px;
             word-wrap: break-word;
+            overflow-wrap: anywhere;
+            min-width: 0;
         }
 
         .community-chat-message .username {
@@ -895,6 +955,191 @@
         #send-community-chat-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        @media (max-width: 1050px) {
+            .main-container {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .side,
+            .sidebar {
+                width: 100%;
+                max-width: none;
+            }
+
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                align-items: start;
+            }
+
+            #customization-container {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                margin-bottom: 18px;
+                border-radius: 12px;
+                background-position: 65% center;
+            }
+
+            .header p {
+                max-width: 330px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .main-container {
+                margin-top: 10px;
+                gap: 18px;
+            }
+
+            .side,
+            .sidebar {
+                gap: 18px;
+            }
+
+            #chat-container {
+                min-height: 440px;
+                height: min(620px, 72svh);
+                border-radius: 12px;
+            }
+
+            .chat-box {
+                padding: 10px;
+                margin-bottom: 14px;
+            }
+
+            .module-container-sidebar,
+            #auth-container,
+            #leaderboard-container,
+            #customization-container,
+            #community-chat-container {
+                border-radius: 12px;
+            }
+
+            .module-container-sidebar h3,
+            #auth-container h3,
+            #leaderboard-container h3,
+            #customization-container h3,
+            #community-chat-container h3,
+            #quiz-progress-area h3 {
+                font-size: 1.45em;
+                line-height: 1.25;
+                overflow-wrap: anywhere;
+            }
+
+            #user-stats {
+                text-align: left;
+                line-height: 1.5;
+            }
+
+            .input-container,
+            .community-chat-input-container {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #user-input,
+            #community-chat-input,
+            #send-button,
+            #send-community-chat-button {
+                width: 100%;
+            }
+
+            .user-message-container,
+            .bot-reply-container,
+            .user,
+            .bot {
+                max-width: 92%;
+            }
+
+            .user-message-container .user-avatar,
+            .bot-reply-container img,
+            .user-avatar,
+            .bot-avatar {
+                width: 34px;
+                height: 34px;
+            }
+
+            .user-message-container .user-bubble-text,
+            .bot-reply-container .bot-reply-text,
+            .user-bubble-text,
+            .bot-reply-text {
+                padding: 10px 14px;
+                font-size: 0.98em;
+            }
+
+            .sidebar {
+                display: flex;
+                min-width: 0;
+            }
+
+            .customization-options {
+                grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+            }
+
+            #community-chat-container {
+                height: min(520px, 64svh);
+                min-height: 340px;
+            }
+
+            #audio-control {
+                bottom: 12px;
+                left: 12px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            button {
+                padding: 11px 16px;
+                font-size: 0.95em;
+            }
+
+            .header {
+                padding: 22px 14px;
+                background-position: 72% center;
+            }
+
+            .header p {
+                max-width: 290px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #chat-container {
+                min-height: 420px;
+            }
+
+            #leaderboard-list li {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                font-size: 0.98em;
+            }
+
+            #leaderboard-list .points {
+                margin-left: 30px;
+            }
+
+            .quiz-settings > div {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .customization-item img {
+                width: 52px;
+                height: 52px;
+            }
         }
 
     </style>

@@ -224,6 +224,24 @@ web: gunicorn --bind 0.0.0.0:$PORT PantangLarangGuide:app
 
 Add `GROQ_API_KEY` and `SECRET_KEY` as environment variables in the Koyeb service settings before deploying.
 
+### Vercel Custom-Domain Proxy
+
+If your Render workspace has no custom-domain quota left, deploy the `vercel-proxy/` folder to Vercel and attach your custom domain there. The Vercel project proxies traffic to the Render backend:
+
+```text
+https://nenekbot.onrender.com
+```
+
+Use these Vercel import settings:
+
+| Setting | Value |
+| --- | --- |
+| Root Directory | `vercel-proxy` |
+| Framework Preset | Other |
+| Build Command | Leave empty |
+| Output Directory | Leave empty |
+| Install Command | Leave empty |
+
 ---
 
 ## Folder Structure
@@ -243,6 +261,9 @@ NenekBot/
 |   +-- ...
 +-- templates/
 |   +-- index_PantangBot.html
++-- vercel-proxy/
+|   +-- README.md
+|   +-- vercel.json
 +-- .gitignore
 +-- .python-version
 +-- app.env.example

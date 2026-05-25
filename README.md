@@ -181,6 +181,51 @@ http://127.0.0.1:5000
 
 ---
 
+## Free Deployment
+
+This project is ready for free Flask deployment on platforms such as **Render** or **Koyeb**.
+
+### Recommended Option: Render
+
+1. Push the latest code to GitHub.
+2. Go to [Render](https://render.com/) and create a **New Web Service**.
+3. Connect this repository:
+
+   ```text
+   https://github.com/Xid03/NenekBot
+   ```
+
+4. Use these settings:
+
+   | Setting | Value |
+   | --- | --- |
+   | Runtime | Python 3 |
+   | Build Command | `pip install -r requirements.txt` |
+   | Start Command | `gunicorn --bind 0.0.0.0:$PORT PantangLarangGuide:app` |
+
+5. Add environment variables in the Render dashboard:
+
+   ```env
+   GROQ_API_KEY=your_groq_api_key_here
+   SECRET_KEY=your_secure_secret_key
+   ```
+
+6. Deploy the service and open the generated `.onrender.com` URL.
+
+> Note: Free web services may sleep after inactivity, so the first request after a pause can take longer to load.
+
+### Alternative Option: Koyeb
+
+Koyeb can also deploy this app from GitHub. The included `Procfile` tells Koyeb to run:
+
+```text
+web: gunicorn --bind 0.0.0.0:$PORT PantangLarangGuide:app
+```
+
+Add `GROQ_API_KEY` and `SECRET_KEY` as environment variables in the Koyeb service settings before deploying.
+
+---
+
 ## Folder Structure
 
 ```text
@@ -199,8 +244,10 @@ NenekBot/
 +-- templates/
 |   +-- index_PantangBot.html
 +-- .gitignore
++-- .python-version
 +-- app.env.example
 +-- PantangLarangGuide.py
++-- Procfile
 +-- README.md
 +-- requirements.txt
 ```

@@ -1,6 +1,7 @@
 Flask
 Flask-SQLAlchemy
 Flask-Login
+gunicorn
 openai
 python-dotenv
 Werkzeug

@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nenek Bot👵 - Explore Pantang Larang Melayu</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Philosopher&display=swap">
+    <link rel="icon" href="{{ url_for('static', filename='icons.png') }}" type="image/png">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Comfortaa', cursive;
+            background-color: #f8f0e3; /* Light beige background */
+            background-image: url("{{ url_for('static', filename='background.jpg') }}");
+            background-repeat: no-repeat; /* Prevent the image from repeating */
+            background-size: cover;
+            color: #5a3d2b; /* Earthy brown text */
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+       /* Header Styling with Background Image */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-image: url("{{ url_for('static', filename='header.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            color: white; /* Adjust text color for better visibility on the image */
+            padding: 40px 400px; /* Add padding for spacing */
+            border-radius: 10px; /* Optional: Add rounded corners */
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2); /* Optional: Add a subtle shadow */
+        }
+
+        .header h1 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 3em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Optional: Add text shadow for better readability */
+        }
+
+        .header p {
+            font-size: 1.1em;
+            margin-top: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Optional: Add text shadow */
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        /* Chat Module */
+        #chat-container {
+            background-color: #ffe0c2; /* Light yellow chat background */
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            height: 600px; /* Fixed height for scrolling */
+        }
+
+        #user-stats {
+            font-size: 1em;
+            color: #5a3d2b;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fefbe9; /* Slightly darker yellow for contrast */
+            border: 1px solid #f0e68c; /* Light goldenrod border */
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Styling for user message container (includes avatar and bubble) */
+        .user-message-container {
+            display: flex;
+            align-items: flex-start; /* Align items to the top for avatar and text */
+            margin-bottom: 10px; /* Add some spacing between messages */
+            align-self: flex-end; /* Align the whole container to the right */
+            max-width: 75%; /* Limit width of the entire message block */
+        }
+
+        .user-message-container .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: 10px; /* Margin on the left for right-aligned user messages */
+            flex-shrink: 0; /* Prevent avatar from shrinking */
+        }
+
+        .user-message-container .user-bubble-text {
+            /* This will be the actual bubble for the user's text */
+            padding: 12px 18px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            font-size: 1.05em;
+            flex-grow: 1; /* Allow text bubble to grow */
+        }
+
+        /* Styling for bot message container (includes avatar and bubble) */
+        .bot-reply-container {
+            display: flex;
+            align-items: flex-start; /* Align items to the top for avatar and text */
+            margin-bottom: 10px; /* Add some spacing between bot replies */
+            align-self: flex-start; /* Align the whole container to the left */
+            max-width: 75%; /* Limit width of the entire message block */
+        }
+
+        .bot-reply-container img { /* This is the bot's avatar */
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px; /* Margin on the right for left-aligned bot messages */
+            flex-shrink: 0; /* Prevent avatar from shrinking */
+        }
+
+        .bot-reply-container .bot-reply-content { /* Target the container for text and indicator */
+            display: flex;
+            flex-direction: column; /* Stack indicator and text vertically */
+        }
+
+        .bot-reply-container .bot-reply-text {
+            /* Styles for the actual bot reply text */
+            padding: 12px 18px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            font-size: 1.05em;
+            flex-grow: 1; /* Allow text bubble to grow */
+        }
+
+        /* Default user and bot bubble colors - these will be overridden by customization */
+        .user-bubble-text.user-bubble-default { background-color: #a1887f; color: #f8f0e3; }
+        .user-bubble-text.user-bubble-blue { background-color: #6a93cb; color: #ffffff; }
+        .user-bubble-text.user-bubble-green { background-color: #79bb8f; color: #ffffff; }
+        .user-bubble-text.user-bubble-pink { background-color: #f7a8b8; color: #ffffff; }
+        .user-bubble-text.user-bubble-dark { background-color: #3b3b3b; color: #ffffff; }
+
+        .bot-reply-text.bot-bubble-default { background-color: #e6d7b9; color: #5a3d2b; }
+        .bot-reply-text.bot-bubble-light-blue { background-color: #c2e0ff; color: #3b3b3b; }
+        .bot-reply-text.bot-bubble-light-green { background-color: #d1f7d1; color: #3b3b3b; }
+        .bot-reply-text.bot-bubble-light-pink { background-color: #ffe0e0; color: #3b3b3b; }
+        .bot-reply-text.bot-bubble-grey { background-color: #cccccc; color: #3b3b3b; }
+
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #d4a373; /* Sandy brown separator */
+            padding-top: 20px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #d4a373;
+            border-radius: 25px;
+            outline: none;
+            font-size: 1em;
+            margin-right: 15px;
+            background-color: #fff;
+            color: #5a3d2b;
+        }
+
+        button {
+            background-color: #ffb380; /* Medium brown button */
+            border: none;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3); /* Added shadow */
+        }
+
+        button:hover {
+            background-color: #fa8c5e; /* Darker brown on hover */
+        }
+
+        /* Sidebar (Quiz & Categories) */
+        .sidebar {
+            flex: 0.4;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        .module-container-sidebar {
+            background-color: #f8f5f0;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .module-container-sidebar h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Quiz Styling in Sidebar */
+        .quiz-settings { /* New style for quiz settings */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .quiz-settings > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quiz-settings label {
+            font-weight: bold;
+            color: #78513a;
+        }
+        .quiz-settings select,
+        .quiz-settings input[type="text"] {
+            padding: 8px;
+            border: 1px solid #d4a373;
+            border-radius: 20px;
+            outline: none;
+            font-size: 1em;
+            background-color: #fff;
+            color: #5a3d2b;
+            flex-grow: 1;
+        }
+
+        #quiz-container-sidebar button {
+            background-color: #c08457;
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+        /* Added hover effect for quiz buttons */
+        #quiz-container-sidebar button:hover {
+            background-color: #a16947; /* Darker shade for hover */
+        }
+
+
+        #quiz-question-container-sidebar {
+            margin-top: 15px;
+            background-color: #fefbe9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #f0e68c;
+            text-align: center;
+            display: none;
+        }
+        #quiz-timer { /* New style for timer */
+            background-color: #ffe0c2;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: #5a3d2b;
+            font-weight: bold;
+        }
+        #explanation-area { /* New style for explanation */
+            background-color: #fefbe9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #f0e68c;
+            text-align: left;
+            margin-top: 20px;
+        }
+        #explanation-area h4 {
+            color: #c08457;
+            margin-top: 0;
+        }
+        #quiz-progress-area { /* New style for progress area */
+            background-color: #f8f5f0;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-top: 20px;
+            text-align: center;
+            display: none; /* Initially hidden */
+        }
+        #quiz-progress-area h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+        }
+        #show-progress-button { /* Updated style for progress button */
+            background-color: #c08457;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            display: block; /* Make them stack nicely */
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3); /* Added shadow */
+        }
+        #show-progress-button:hover {
+            background-color: #a16947;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Slightly different shadow on hover */
+        }
+
+        #back-progress-button {
+            background-color: #777; /* Grey color for back button */
+            border: none;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            display: none; /* Initially hidden */
+            width: fit-content; /* Adjust width to content */
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        #back-progress-button:hover {
+            background-color: #555;
+        }
+
+
+        .choice-label-sidebar {
+            display: block;
+            margin: 8px 0;
+            font-size: 1em;
+            color: #78513a;
+        }
+
+        /* Categories Styling in Sidebar */
+        #categories-container h3 {
+            margin-top: 0;
+        }
+
+        #categories-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #categories-list li {
+            margin-bottom: 10px;
+        }
+
+        #categories-list a {
+            display: block;
+            padding: 10px 15px;
+            border-radius: 20px;
+            background-color: #ffb380;
+            color: #5a3d2b;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3); /* Added shadow */
+        }
+
+        #categories-list a:hover {
+            background-color: #d4a373;
+            color: #fff;
+        }
+
+        /* Footer Styling */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #5a3d2b;
+            margin-right: 4px;
+            opacity: 0;
+            animation: blink-dots 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink-dots {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            40% { opacity: 0.2; }
+            60%, 100% { opacity: 0.2; }
+        }
+
+        /* Changed from .bot-reply-container > div to .bot-reply-content to be more specific */
+        .bot-reply-content {
+            display: flex;
+            flex-direction: column; /* Stack indicator and text vertically */
+        }
+
+        .typing-indicator {
+            display: flex; /* For the bouncing dots */
+            align-items: center;
+        }
+
+        /* Re-added .user and .bot for general message styling, but now they are flex containers */
+        .user, .bot {
+            display: flex; /* Use flexbox for alignment of avatar and text */
+            align-items: flex-start; /* Align items to the top */
+            margin-bottom: 10px;
+            max-width: 75%;
+            word-wrap: break-word;
+            font-size: 1.05em;
+        }
+
+        .user {
+            align-self: flex-end; /* Align the whole user message container to the right */
+        }
+
+        .bot {
+            align-self: flex-start; /* Align the whole bot message container to the left */
+        }
+
+        /* Avatar styling within messages */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: 10px; /* For user messages, avatar is on the right */
+            flex-shrink: 0;
+        }
+
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px; /* For bot messages, avatar is on the left */
+            flex-shrink: 0;
+        }
+
+        /* Message bubble styling */
+        .user-bubble-text {
+            padding: 12px 18px;
+            border-radius: 20px;
+            flex-grow: 1; /* Allow text bubble to grow */
+            background-color: #a1887f; /* Default user bubble */
+            color: #f8f0e3;
+        }
+
+        .bot-reply-text {
+            padding: 12px 18px;
+            border-radius: 20px;
+            flex-grow: 1; /* Allow text bubble to grow */
+            background-color: #e6d7b9; /* Default bot bubble */
+            color: #5a3d2b;
+        }
+
+
+        .chatbot-header {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #d4a373; /* Optional separator */
+        }
+
+        .chatbot-header img {
+            width: 40px; /* Adjust size */
+            height: 40px;
+            border-radius: 50%; /* Optional circular logo */
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #c08457; /* Optional name color */
+        }
+
+        #audio-control {
+            position: fixed; /* Or absolute, depending on where you want it */
+            bottom: 20px;
+            left: 20px;
+            z-index: 100; /* Ensure it's above other content */
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        #audio-control:hover {
+            opacity: 1;
+        }
+
+        #audio-control img {
+            width: 30px; /* Adjust size as needed */
+            height: 30px;
+        }
+
+        /* New styles for login/register forms */
+        #auth-container {
+            background-color: #f8f5f0;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #auth-container h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+        }
+
+        #auth-container input[type="text"],
+        #auth-container input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #d4a373;
+            border-radius: 20px;
+            outline: none;
+            font-size: 1em;
+            background-color: #fff;
+            color: #5a3d2b;
+        }
+
+        #auth-container button {
+            background-color: #c08457;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        #auth-container button:hover {
+            background-color: #a16947;
+        }
+
+        /* Explicitly set initial display for login/register forms */
+        #login-register-forms {
+            display: block; /* Ensure it's visible by default */
+        }
+
+        #user-info-display {
+            display: none; /* Ensure it's hidden by default */
+        }
+
+        #user-info-display h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+        }
+
+        #user-info-display p {
+            margin-bottom: 10px;
+        }
+
+        #logout-button {
+            background-color: #d9534f; /* Red color for logout */
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 15px;
+        }
+
+        #logout-button:hover {
+            background-color: #c9302c;
+        }
+
+        /* Leaderboard Specific Styles */
+        #leaderboard-container {
+            background-color: #f8f5f0;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+
+        #leaderboard-container h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+        }
+
+        #leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #leaderboard-list li {
+            background-color: #e6d7b9;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            color: #5a3d2b;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #leaderboard-list li:first-child {
+            background-color: #ffd700; /* Gold for first place */
+            font-weight: bold;
+            color: #3a2a1e;
+        }
+        #leaderboard-list li:nth-child(2) {
+            background-color: #c0c0c0; /* Silver for second place */
+            font-weight: bold;
+            color: #3a2a1e;
+        }
+        #leaderboard-list li:nth-child(3) {
+            background-color: #cd7f32; /* Bronze for third place */
+            font-weight: bold;
+            color: #3a2a1e;
+        }
+
+        #leaderboard-list .rank {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 20px;
+            text-align: left;
+        }
+        #leaderboard-list .username {
+            flex-grow: 1;
+            text-align: left;
+        }
+        #leaderboard-list .points {
+            font-weight: bold;
+        }
+
+        /* Customization Section Styles */
+        #customization-container {
+            background-color: #f8f5f0;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #customization-container h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+        }
+
+        .customization-option-group {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #d4a373;
+            padding-bottom: 15px;
+        }
+
+        .customization-option-group:last-child {
+            border-bottom: none;
+        }
+
+        .customization-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .customization-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .customization-item.selected {
+            border-color: #c08457;
+            box-shadow: 0 0 0 3px #c08457;
+        }
+
+        .customization-item:hover {
+            background-color: #f0e6d5;
+        }
+
+        .customization-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 5px;
+        }
+
+        .customization-item .color-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            border: 1px solid #d4a373;
+        }
+
+        .customization-item .cost {
+            font-size: 0.85em;
+            color: #78513a;
+            font-weight: bold;
+        }
+
+        .customization-item .owned-tag {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+
+                /* NEW: Community Chat Styles */
+        #community-chat-container {
+            background-color: #f8f5f0;
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column;
+            height: 400px; /* Fixed height for chat box */
+        }
+
+        #community-chat-container h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8em;
+            color: #c08457;
+            margin-bottom: 15px;
+        }
+
+        #community-chat-box {
+            flex-grow: 1; /* Allows chat box to fill available space */
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fefbe9;
+            border: 1px solid #f0e68c;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            text-align: left; /* Align text to the left */
+        }
+
+        .community-chat-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #d4a373;
+            color: white;
+        }
+
+        #community-chat-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #d4a373;
+            border-radius: 20px;
+            outline: none;
+            font-size: 0.95em;
+            background-color: #fff;
+            color: #5a3d2b;
+        }
+
+        #send-community-chat-button {
+            background-color: #6a93cb; /* Blueish button */
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #send-community-chat-button:hover {
+            background-color: #557aa8;
+        }
+
+        /* Styling for individual chat messages in community chat */
+        .community-chat-message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .community-chat-message .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .community-chat-message .message-content {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .community-chat-message .username {
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #5a3d2b;
+        }
+
+        .community-chat-message .timestamp {
+            font-size: 0.75em;
+            color: #5a3d2b;;
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        /* Custom bubble classes for community chat messages (reusing existing user bubble styles) */
+        .message-content.user-bubble-default { background-color: #a1887f; color: #f8f0e3; }
+        .message-content.user-bubble-blue { background-color: #6a93cb; color: #ffffff; }
+        .message-content.user-bubble-green { background-color: #79bb8f; color: #ffffff; }
+        .message-content.user-bubble-pink { background-color: #f7a8b8; color: #ffffff; }
+        .message-content.user-bubble-dark { background-color: #3b3b3b; color: #ffffff; }
+
+        /* Disable chat input/button for guests */
+        #community-chat-input:disabled,
+        #send-community-chat-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="audio-control" onclick="toggleAudio()">
+        <img id="audio-icon" src="{{ url_for('static', filename='sound_off.png') }}" alt="Toggle Sound">
+    </div>
+    <div class="header">
+        <h1>Nenek Bot</h1>
+        <b><i><p>By YAZID ZAQWAN HAKIM</p></i></b>
+        <p>Jom Terokai Dunia Pantang Larang Melayu 👵</p>
+    </div>
+
+    <div class="main-container">
+        <div class="side">
+        <div id="chat-container">
+            <div class="chatbot-header">
+                <img src="{{ url_for('static', filename='icon.png') }}" alt="Nenek Bot Avatar">
+                <h3>Nenek Bot</h3>
+            </div><br>
+            <div id="user-stats">
+                Mata: <span id="user-points">0</span> &bull; Pelekat: <span id="user-stickers">Tiada</span>
+            </div>
+            <div class="chat-box" id="chat-box">
+            </div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Tanya Nenek Bot tentang Pantang Larang..." onkeydown="checkEnter(event)">
+                <button id="send-button" onclick="sendMessage()">Hantar 💬</button>
+            </div>
+        </div>
+
+
+
+                <div id="quiz-container-sidebar" class="module-container-sidebar">
+                <h3>Uji Pengetahuan Pantang Larang! 🧠</h3><br>
+                <button id="generate-quiz-button-sidebar" onclick="generateQuiz()">Soalan Kuiz</button>
+                <div id="quiz-question-container-sidebar" style="display: none;">
+                    <div id="quiz-timer" style="display: none;">Masa: <span id="timer-seconds"></span> saat</div>
+                    <p id="quiz-question-sidebar"></p>
+                    <div id="quiz-choices-sidebar"></div>
+                    <button id="submit-answer-button-sidebar" style="display: none;" onclick="submitQuizAnswer()">Jawab ✅</button>
+                    <div id="explanation-area" style="display: none;">
+                        <h4>Penjelasan</h4>
+                        <p id="explanation-text"></p>
+                    </div>
+                </div>
+                <div id="quiz-progress-area" style="display: none;">
+                    <h3>Kemajuan Kuiz Anda</h3>
+                    <p>Kuiz Diselesaikan: <span id="progress-completed">0</span></p>
+                    <p>Skor Purata: <span id="progress-average">0</span>%</p>
+                    <button id="back-progress-button" onclick="hideQuizProgress()">Kembali</button>
+                </div>
+                <button id="show-progress-button" onclick="showQuizProgress()">Lihat Kemajuan</button>
+            </div>
+
+             <div id="leaderboard-container" class="module-container-sidebar">
+                <h3>Papan Pendahulu 🏆</h3><br>
+                <ul id="leaderboard-list">
+                    <li><span class="rank">1.</span> <span class="username">Memuat...</span> <span class="points">...</span></li>
+                </ul><br>
+                <button onclick="fetchLeaderboard()">Muat Semula Papan Pendahulu</button>
+            </div>
+
+
+                        <!-- NEW: Community Chat Section -->
+            <div id="community-chat-container" class="module-container-sidebar">
+                <h3>Perbincangan Komuniti 💬</h3><br>
+                <div id="community-chat-box">
+                    <!-- Chat messages will be loaded here -->
+                    <p>Memuat mesej...</p>
+                </div>
+                <div class="community-chat-input-container">
+                    <input type="text" id="community-chat-input" placeholder="Tulis mesej anda..." onkeydown="checkCommunityChatEnter(event)">
+                    <button id="send-community-chat-button" onclick="sendCommunityChatMessage()">Hantar</button>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+        <div class="sidebar">
+            <div id="auth-container" class="module-container-sidebar">
+                <div id="login-register-forms">
+                    <h3>Log Masuk / Daftar</h3><br>
+                    <input type="text" id="auth-username" placeholder="Nama Pengguna (Username)">
+                    <input type="password" id="auth-password" placeholder="Kata Laluan">
+                    <button onclick="loginUser()">Log Masuk</button>
+                    <button onclick="registerUser()">Daftar</button>
+                </div>
+                <div id="user-info-display">
+                    <h3>Selamat Datang, <span id="display-username"></span>!</h3>
+                    <p>Mata Anda: <span id="display-points">0</span></p>
+                    <p>Pelekat Anda: <span id="display-stickers">Tiada</span></p>
+                    <button id="logout-button" onclick="logoutUser()">Log Keluar</button>
+                </div>
+            </div>
+
+            <div id="customization-container" class="module-container-sidebar">
+                <h3>Penyesuaian Avatar Anda 🎨</h3>
+                <div class="customization-option-group">
+                    <h4>Avatar Anda</h4>
+                    <div id="user-avatar-options" class="customization-options">
+                        </div>
+                </div>
+                <div class="customization-option-group">
+                    <h4>Warna Chat Bubbles Anda</h4>
+                    <div id="user-bubble-options" class="customization-options">
+                        </div>
+                </div>
+                <div class="customization-option-group">
+                    <h4>Warna Chat Bubbles NenekBot</h4>
+                    <div id="bot-bubble-options" class="customization-options">
+                        </div>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+    </div>
+
+
+    <footer>
+        Teroka warisan budaya kita bersama Nenek Bot.
+    </footer>
+
+    <script>
+        // --- Global variables for chat and quiz ---
+        let currentQuestionId = null;
+        let currentCorrectAnswer = "";
+        let quizStartTime;
+        let timerInterval;
+        let backgroundMusic = new Audio("{{ url_for('static', filename='background_music.mp3') }}");
+        let isMusicPlaying = false;
+        let currentUsername = "guest"; // Track current user
+        // NEW: Customization state
+        let currentUserCustomizations = {
+            // bot_avatar_url is removed from here as it's no longer customizable by user
+            user_avatar_url: "{{ url_for('static', filename='user_default.jpg') }}", // Default user avatar (you'll need to create this image)
+            user_bubble_class: "user-bubble-default",
+            bot_bubble_class: "bot-bubble-default"
+        };
+        // NEW: Available customization options (will be fetched from backend in a real app)
+        let availableCustomizations = {
+            // avatars (Nenek Bot avatars) removed
+            user_avatars: [ // New: User avatars
+                { name: "Pengguna Asal", value: "{{ url_for('static', filename='user_default.jpg') }}", cost: 0 }, // You need to create user_default.png
+                { name: "Wanita", value: "{{ url_for('static', filename='women.jpg') }}", cost: 50 },
+                { name: "Lelaki", value: "{{ url_for('static', filename='men.jpg') }}", cost: 50 },
+                { name: "Atuk", value: "{{ url_for('static', filename='atuk.jpg') }}", cost: 70 },
+                { name: "Nenek", value: "{{ url_for('static', filename='nenek.jpg') }}", cost: 70 },
+                { name: "Kucing", value: "{{ url_for('static', filename='kucing.jpg') }}", cost: 100 }
+            ],
+            user_bubbles: [
+                { name: "Asal", value: "user-bubble-default", cost: 0 },
+                { name: "Biru", value: "user-bubble-blue", cost: 20 },
+                { name: "Hijau", value: "user-bubble-green", cost: 20 },
+                { name: "Merah Jambu", value: "user-bubble-pink", cost: 20 },
+                { name: "Gelap", value: "user-bubble-dark", cost: 30 }
+            ],
+            bot_bubbles: [
+                { name: "Asal", value: "bot-bubble-default", cost: 0 },
+                { name: "Biru Cerah", value: "bot-bubble-light-blue", cost: 20 },
+                { name: "Hijau Cerah", value: "bot-bubble-light-green", cost: 20 },
+                { name: "Merah Jambu Cerah", value: "bot-bubble-light-pink", cost: 20 },
+                { name: "Kelabu", value: "bot-bubble-grey", cost: 30 }
+            ],
+            owned_customizations: { // This will be populated from the backend
+                // avatars removed
+                user_avatars: ["{{ url_for('static', filename='user_default.jpg') }}"],
+                user_bubbles: ["user-bubble-default"],
+                bot_bubbles: ["bot-bubble-default"]
+            }
+        };
+
+
+        const chatBox = document.getElementById("chat-box");
+        const userPointsSpan = document.getElementById("user-points");
+        const userStickersSpan = document.getElementById("user-stickers");
+        const quizQuestionContainerSidebar = document.getElementById("quiz-question-container-sidebar");
+        const quizQuestionSidebar = document.getElementById("quiz-question-sidebar");
+        const quizChoicesSidebar = document.getElementById("quiz-choices-sidebar");
+        const submitAnswerButtonSidebar = document.getElementById("submit-answer-button-sidebar");
+        const categoriesList = document.getElementById("categories-list");
+        const userInputField = document.getElementById("user-input");
+        const sendButton = document.getElementById("send-button");
+        const quizTimerDisplay = document.getElementById("quiz-timer");
+        const timerSecondsSpan = document.getElementById("timer-seconds");
+        const explanationArea = document.getElementById("explanation-area");
+        const explanationText = document.getElementById("explanation-text");
+        const quizProgressArea = document.getElementById("quiz-progress-area");
+        const progressCompletedSpan = document.getElementById("progress-completed");
+        const progressAverageSpan = document.getElementById("progress-average"); // Corrected typo here
+        const audioIcon = document.getElementById("audio-icon");
+        const showProgressButton = document.getElementById("show-progress-button");
+        const backProgressButton = document.getElementById("back-progress-button");
+
+        // Auth elements
+        const authUsernameInput = document.getElementById("auth-username");
+        const authPasswordInput = document.getElementById("auth-password");
+        const loginRegisterForms = document.getElementById("login-register-forms");
+        const userInfoDisplay = document.getElementById("user-info-display");
+        const displayUsername = document.getElementById("display-username");
+        const displayPoints = document.getElementById("display-points");
+        const displayStickers = document.getElementById("display-stickers");
+
+        // Leaderboard elements
+        const leaderboardContainer = document.getElementById("leaderboard-container");
+        const leaderboardList = document.getElementById("leaderboard-list");
+
+        // NEW: Customization elements
+        // nenekBotAvatarDisplay removed as it's no longer dynamically changed
+        const userAvatarOptionsContainer = document.getElementById("user-avatar-options");
+        const userBubbleOptionsContainer = document.getElementById("user-bubble-options");
+        const botBubbleOptionsContainer = document.getElementById("bot-bubble-options");
+
+        // NEW: Community Chat elements
+        const communityChatInput = document.getElementById("community-chat-input");
+        const sendCommunityChatButton = document.getElementById("send-community-chat-button");
+        const communityChatBox = document.getElementById("community-chat-box");
+        let communityChatInterval; // To store the interval for refreshing chat
+
+
+        // --- Audio objects for other sounds ---
+        const receiveMessageSound = new Audio("{{ url_for('static', filename='received.mp3') }}");
+        const sendMessageSound = new Audio("{{ url_for('static', filename='send.mp3') }}");
+        const errorSound = new Audio("{{ url_for('static', filename='error.mp3') }}");
+        const typingSound = new Audio("{{ url_for('static', filename='typing.mp3') }}");
+        const correctSound = new Audio("{{ url_for('static', filename='correct.mp3') }}");
+        const incorrectSound = new Audio("{{ url_for('static', filename='wrong.mp3') }}");
+        const timerSound = new Audio("{{ url_for('static', filename='timer.mp3') }}");
+        const onLoadSound = new Audio("{{ url_for('static', filename='welcome.mp3') }}");
+
+
+        // --- Play initial welcome sound on page load with reduced volume ---
+        window.onload = function() {
+            onLoadSound.volume = 0.1;
+            onLoadSound.play().catch(error => {
+                console.error("Error playing on load sound:", error);
+                console.log("Autoplay prevented by browser.");
+            });
+
+            backgroundMusic.loop = true;
+            backgroundMusic.volume = 1; // Adjust background music volume
+            updateAudioIcon(); // Set initial icon to sound off (assuming no music playing initially)
+            checkUserStatus(); // Check user status on page load
+            fetchLeaderboard(); // Load leaderboard on page load
+            fetchCustomizations(); // NEW: Load customization options
+            fetchCommunityChat(); // Initial fetch for community chat
+            communityChatInterval = setInterval(fetchCommunityChat, 5000); // Set up auto-refresh for community chat (e.g., every 5 seconds)
+        };
+
+        function toggleAudio() {
+            if (isMusicPlaying) {
+                backgroundMusic.pause();
+                isMusicPlaying = false;
+                audioIcon.src = "{{ url_for('static', filename='sound_off.png') }}";
+                audioIcon.alt = "Sound Off";
+            } else {
+                backgroundMusic.play().catch(error => {
+                    console.error("Error playing background music:", error);
+                    console.log("Cannot play background music.");
+                });
+                isMusicPlaying = true;
+                audioIcon.src = "{{ url_for('static', filename='sound_on.png') }}";
+                audioIcon.alt = "Sound On";
+            }
+        }
+
+        function updateAudioIcon() {
+            if (isMusicPlaying) {
+                audioIcon.src = "{{ url_for('static', filename='sound_on.png') }}";
+                audioIcon.alt = "Sound On";
+            } else {
+                audioIcon.src = "{{ url_for('static', filename='sound_off.png') }}";
+                audioIcon.alt = "Sound Off";
+            }
+        }
+
+        // --- Authentication Functions ---
+        async function checkUserStatus() {
+            try {
+                const response = await fetch('/get_user_status');
+                const data = await response.json();
+                updateUIForUser(data);
+            } catch (error) {
+                console.error("Error checking user status:", error);
+                showCustomMessage("Gagal memuat status pengguna.");
+            }
+        }
+
+        function updateUIForUser(userData) {
+            if (userData.is_authenticated) {
+                currentUsername = userData.username;
+                userPointsSpan.textContent = userData.points;
+                userStickersSpan.textContent = userData.stickers || "Tiada";
+                displayUsername.textContent = userData.username;
+                displayPoints.textContent = userData.points;
+                displayStickers.textContent = userData.stickers || "Tiada";
+
+                loginRegisterForms.style.display = 'none';
+                userInfoDisplay.style.display = 'block';
+
+                // NEW: Apply user's saved customizations
+                // bot_avatar_url is removed from here
+                currentUserCustomizations.user_avatar_url = userData.user_avatar_url || "{{ url_for('static', filename='user_default.jpg') }}";
+                currentUserCustomizations.user_bubble_class = userData.user_bubble_class || "user-bubble-default";
+                currentUserCustomizations.bot_bubble_class = userData.bot_bubble_class || "bot-bubble-default";
+                availableCustomizations.owned_customizations = userData.owned_customizations; // Update owned customizations
+                updateChatAppearance();
+                renderCustomizationOptions(); // Re-render to show owned items
+            } else {
+                currentUsername = "guest";
+                userPointsSpan.textContent = "0";
+                userStickersSpan.textContent = "Tiada";
+                displayUsername.textContent = "Tetamu"; // For guest users
+                displayPoints.textContent = "0";
+                displayStickers.textContent = "Tiada";
+
+                loginRegisterForms.style.display = 'block';
+                userInfoDisplay.style.display = 'none';
+
+                // NEW: Reset to default for guest
+                // bot_avatar_url is removed from here
+                currentUserCustomizations.user_avatar_url = "{{ url_for('static', filename='user_default.jpg') }}";
+                currentUserCustomizations.user_bubble_class = "user-bubble-default";
+                currentUserCustomizations.bot_bubble_class = "bot-bubble-default";
+                availableCustomizations.owned_customizations = { // Default owned for guest
+                    // avatars removed
+                    user_avatars: ["{{ url_for('static', filename='user_default.jpg') }}"],
+                    user_bubbles: ["user-bubble-default"],
+                    bot_bubbles: ["bot-bubble-default"]
+                };
+                updateChatAppearance();
+                renderCustomizationOptions(); // Re-render to show all as not owned
+            }
+        }
+
+        async function registerUser() {
+            const username = authUsernameInput.value.trim();
+            const password = authPasswordInput.value.trim();
+
+            if (!username || !password) {
+                showCustomMessage("Sila masukkan nama pengguna dan kata laluan.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                showCustomMessage(data.message);
+                if (response.ok) {
+                    updateUIForUser({
+                        is_authenticated: true,
+                        username: data.username,
+                        points: data.points,
+                        stickers: data.stickers,
+                        // NEW: Include customization data from registration response
+                        // bot_avatar_url removed
+                        user_avatar_url: data.user_avatar_url,
+                        user_bubble_class: data.user_bubble_class,
+                        bot_bubble_class: data.bot_bubble_class,
+                        owned_customizations: data.owned_customizations
+                    });
+                    authUsernameInput.value = '';
+                    authPasswordInput.value = '';
+                }
+            } catch (error) {
+                console.error("Error during registration:", error);
+                showCustomMessage("Pendaftaran gagal. Sila cuba lagi.");
+            }
+        }
+
+        async function loginUser() {
+            const username = authUsernameInput.value.trim();
+            const password = authPasswordInput.value.trim();
+
+            if (!username || !password) {
+                showCustomMessage("Sila masukkan nama pengguna dan kata laluan.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                showCustomMessage(data.message);
+                if (response.ok) {
+                    updateUIForUser({
+                        is_authenticated: true,
+                        username: data.username,
+                        points: data.points,
+                        stickers: data.stickers,
+                        // NEW: Include customization data from login response
+                        // bot_avatar_url removed
+                        user_avatar_url: data.user_avatar_url,
+                        user_bubble_class: data.user_bubble_class,
+                        bot_bubble_class: data.bot_bubble_class,
+                        owned_customizations: data.owned_customizations
+                    });
+                    authUsernameInput.value = '';
+                    authPasswordInput.value = '';
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                showCustomMessage("Log masuk gagal. Sila cuba lagi.");
+            }
+        }
+
+        async function logoutUser() {
+            try {
+                const response = await fetch('/logout');
+                const data = await response.json();
+                showCustomMessage(data.message);
+                if (response.ok) {
+                    updateUIForUser({ is_authenticated: false }); // Reset UI to guest
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+                showCustomMessage("Log keluar gagal.");
+            }
+        }
+
+
+        // --- Chatbot Functions ---
+        async function sendMessage() {
+            const userInput = userInputField.value;
+            if (!userInput.trim()) return;
+
+            // NEW: User message container structure
+            const userMessageContainer = document.createElement("div");
+            userMessageContainer.className = "user-message-container"; // Use the new container class
+
+            const userBubbleText = document.createElement("div");
+            userBubbleText.className = `user-bubble-text ${currentUserCustomizations.user_bubble_class}`;
+            userBubbleText.textContent = userInput;
+            userMessageContainer.appendChild(userBubbleText);
+
+            const userAvatar = document.createElement("img");
+            userAvatar.className = "user-avatar";
+            userAvatar.src = currentUserCustomizations.user_avatar_url;
+            userAvatar.alt = "User Avatar";
+            userMessageContainer.appendChild(userAvatar);
+
+            chatBox.appendChild(userMessageContainer);
+
+            userInputField.value = "";
+            sendButton.setAttribute('disabled', true);
+            sendMessageSound.play();
+
+            // NEW: Bot reply container structure
+            const botReplyContainer = document.createElement("div");
+            botReplyContainer.className = "bot-reply-container"; // Use the new container class
+
+            const botAvatar = document.createElement("img");
+            // Bot avatar is now static, so use the default path
+            botAvatar.src = "{{ url_for('static', filename='icon.png') }}";
+            botAvatar.alt = "Nenek Bot Avatar";
+            botAvatar.className = "bot-avatar"; // Apply bot-avatar class
+            botReplyContainer.appendChild(botAvatar);
+
+            const replyTextAndIndicator = document.createElement("div");
+            replyTextAndIndicator.className = "bot-reply-content"; // Use new class for content
+            botReplyContainer.appendChild(replyTextAndIndicator);
+
+            const typingIndicator = document.createElement("span");
+            typingIndicator.className = "typing-indicator";
+            typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+            replyTextAndIndicator.appendChild(typingIndicator);
+
+            const botReplyTextElement = document.createElement("div");
+            botReplyTextElement.className = `bot-reply-text ${currentUserCustomizations.bot_bubble_class}`;
+            replyTextAndIndicator.appendChild(botReplyTextElement);
+
+            chatBox.appendChild(botReplyContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            let typingInterval;
+            let playTypingSoundInterval;
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userInput, username: currentUsername })
+                });
+
+                const responseData = await response.json();
+                const botReply = responseData.response;
+                const typingSpeed = 15;
+
+                playTypingSoundInterval = setInterval(() => {
+                    typingSound.play();
+                }, 25);
+
+                typingInterval = setInterval(() => {
+                    if (botReplyTextElement.textContent.length < botReply.length) {
+                        botReplyTextElement.textContent += botReply.charAt(botReplyTextElement.textContent.length);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    } else {
+                        clearInterval(typingInterval);
+                        clearInterval(playTypingSoundInterval);
+                        if (typingIndicator && typingIndicator.parentNode) {
+                            typingIndicator.parentNode.removeChild(typingIndicator);
+                        }
+                        receiveMessageSound.play();
+                    }
+                }, typingSpeed);
+
+                userPointsSpan.textContent = responseData.points;
+                userStickersSpan.textContent = responseData.stickers || "Tiada";
+                displayPoints.textContent = responseData.points;
+                displayStickers.textContent = responseData.stickers || "Tiada";
+
+
+            } catch (error) {
+                console.error("Error sending message:", error);
+                const errorMessage = document.createElement("div");
+                errorMessage.className = "bot-reply-text bot-bubble-default"; // Fallback class for error message
+                errorMessage.textContent = "Ralat: Gagal berkomunikasi dengan Nenek Bot.";
+                chatBox.appendChild(errorMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                if (typingIndicator && typingIndicator.parentNode) {
+                    typingIndicator.parentNode.removeChild(typingIndicator);
+                }
+                if (playTypingSoundInterval) {
+                    clearInterval(playTypingSoundInterval);
+                }
+                errorSound.play();
+            } finally {
+                sendButton.removeAttribute('disabled'); // Re-enable send button
+            }
+        }
+
+        // Function to check Enter key press for sending message
+        function checkEnter(event) {
+            if (event.key === "Enter" && userInputField.value.trim() !== "") {
+                sendMessage();
+            }
+        }
+
+        // --- Quiz Functions (Expanded) ---
+
+        async function generateQuiz() {
+            document.getElementById("generate-quiz-button-sidebar").disabled = true;
+            document.getElementById("generate-quiz-button-sidebar").textContent = "Memuat Soalan, Sila Tunggu Sebentar...";
+            quizQuestionContainerSidebar.style.display = "none";
+            quizChoicesSidebar.innerHTML = "";
+            submitAnswerButtonSidebar.style.display = "none";
+            submitAnswerButtonSidebar.disabled = false;
+            submitAnswerButtonSidebar.textContent = "Jawab ✅";
+            explanationArea.style.display = "none";
+            quizProgressArea.style.display = "none"; // Hide progress area when generating new quiz
+
+            try {
+                const response = await fetch("/generate_quiz", {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                const quizData = await response.json();
+
+                if (quizData.error) {
+                    showCustomMessage(quizData.error);
+                } else {
+                    currentQuestionId = quizData.question_id;
+                    quizQuestionSidebar.textContent = quizData.question;
+
+                    quizData.choices.forEach((choice, index) => {
+                        const choiceDiv = document.createElement("div");
+                        choiceDiv.classList.add("choice-label-sidebar");
+                        const radioInput = document.createElement("input");
+                        radioInput.type = "radio";
+                        radioInput.name = "quiz-choice";
+                        radioInput.value = choice;
+                        radioInput.id = `choice-${index}`;
+
+                        const label = document.createElement("label");
+                        label.textContent = choice;
+                        label.htmlFor = `choice-${index}`;
+
+                        choiceDiv.appendChild(radioInput);
+                        choiceDiv.appendChild(label);
+                        quizChoicesSidebar.appendChild(choiceDiv);
+                    });
+
+                    quizQuestionContainerSidebar.style.display = "block";
+                    submitAnswerButtonSidebar.style.display = "inline-block";
+
+                    startTimer(quizData.time_limit || 30);
+                }
+            } catch (error) {
+                console.error("Error fetching quiz question:", error);
+                if (error.response) {
+                    error.response.text().then(text => console.error("Server response:", text));
+                }
+                showCustomMessage("Gagal memuat soalan kuiz. Sila cuba lagi.");
+            } finally {
+                document.getElementById("generate-quiz-button-sidebar").disabled = false;
+                document.getElementById("generate-quiz-button-sidebar").textContent = "Soalan Kuiz";
+            }
+        }
+
+        function startTimer(duration) {
+            clearInterval(timerInterval);
+            quizTimerDisplay.style.display = "block";
+            let seconds = duration;
+            timerSecondsSpan.textContent = seconds;
+
+            timerSound.pause();
+            timerSound.currentTime = 0;
+
+            timerInterval = setInterval(() => {
+                seconds--;
+                timerSecondsSpan.textContent = seconds;
+
+                if (timerSound.readyState >= 2) {
+                    timerSound.currentTime = 0;
+                    timerSound.play().catch(e => console.error("Error playing timer sound:", e));
+                }
+
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    quizTimerDisplay.style.display = "none";
+                    submitAnswerButtonSidebar.disabled = true;
+                    timerSound.pause();
+                    timerSound.currentTime = 0;
+                    submitQuizAnswer(true);
+                }
+            }, 1000);
+        }
+
+        async function submitQuizAnswer(timedOut = false) {
+            clearInterval(timerInterval);
+            quizTimerDisplay.style.display = "none";
+            timerSound.pause();
+            timerSound.currentTime = 0;
+
+            const selectedChoice = document.querySelector('input[name="quiz-choice"]:checked');
+            let userAnswer = selectedChoice ? selectedChoice.value : null;
+
+            if (!userAnswer && !timedOut) {
+                showCustomMessage("Sila pilih jawapan!");
+                return;
+            }
+
+            submitAnswerButtonSidebar.disabled = true;
+            submitAnswerButtonSidebar.textContent = "Menghantar...";
+
+            try {
+                const response = await fetch("/quiz_answer", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        answer: userAnswer,
+                        question_id: currentQuestionId,
+                        timed_out: timedOut
+                    })
+                });
+
+                const result = await response.json();
+
+                explanationText.innerHTML = `<strong>Jawapan Anda:</strong> ${userAnswer || 'Tiada Jawapan (Masa Tamat)'}<br><strong>Jawapan Betul:</strong> ${result.correct_answer}<br><strong>Penjelasan:</strong> ${result.explanation}`;
+                explanationArea.style.display = "block";
+
+                if (result.correct) {
+                    correctSound.play();
+                } else {
+                    incorrectSound.play();
+                }
+
+                showCustomMessage(result.message);
+
+                if (result.points !== undefined) {
+                    userPointsSpan.textContent = result.points;
+                    displayPoints.textContent = result.points; // Update display in user info section
+                }
+                if (result.stickers) {
+                    userStickersSpan.textContent = result.stickers || "Tiada";
+                    displayStickers.textContent = result.stickers || "Tiada"; // Update display in user info section
+                }
+
+                quizQuestionContainerSidebar.style.display = "none";
+                submitAnswerButtonSidebar.style.display = "none";
+
+            } catch (error) {
+                console.error("Error submitting quiz answer:", error);
+                showCustomMessage("Gagal menghantar jawapan kuiz. Sila cuba lagi.");
+            } finally {
+                document.getElementById("generate-quiz-button-sidebar").disabled = false;
+                document.getElementById("generate-quiz-button-sidebar").textContent = "Soalan Kuiz";
+            }
+        }
+
+        async function showQuizProgress() {
+            quizQuestionContainerSidebar.style.display = "none";
+            submitAnswerButtonSidebar.style.display = "none";
+            explanationArea.style.display = "none";
+            quizProgressArea.style.display = "block";
+            showProgressButton.style.display = 'none';
+            backProgressButton.style.display = 'block';
+
+            try {
+                const response = await fetch("/quiz_progress");
+                console.log("Quiz Progress Response:", response);
+                const data = await response.json();
+                console.log("Quiz Progress Data:", data);
+
+                if (data) {
+                    progressCompletedSpan.textContent = data.completed_quizzes || 0;
+                    progressAverageSpan.textContent = (data.average_score || 0) + "%";
+                    if (data.points !== undefined) {
+                         userPointsSpan.textContent = data.points;
+                         displayPoints.textContent = data.points; // Update display in user info section
+                    }
+                } else {
+                    progressCompletedSpan.textContent = "0";
+                    progressAverageSpan.textContent = "0%";
+                    userPointsSpan.textContent = "0";
+                    displayPoints.textContent = "0"; // Update display in user info section
+                }
+
+            } catch (error) {
+                console.error("Error fetching quiz progress:", error);
+                showCustomMessage("Gagal memuat kemajuan kuiz. Sila cuba lagi.");
+                progressCompletedSpan.textContent = "N/A";
+                progressAverageSpan.textContent = "N/A";
+            }
+        }
+
+        function hideQuizProgress() {
+            quizProgressArea.style.display = 'none';
+            showProgressButton.style.display = 'block';
+            backProgressButton.style.display = 'none';
+        }
+
+        // --- Custom Message Box (to replace alert) ---
+        function showCustomMessage(message) {
+            const messageBox = document.createElement("div");
+            messageBox.style.position = "fixed";
+            messageBox.style.top = "50%";
+            messageBox.style.left = "50%";
+            messageBox.style.transform = "translate(-50%, -50%)";
+            messageBox.style.backgroundColor = "#fff";
+            messageBox.style.padding = "20px";
+            messageBox.style.borderRadius = "10px";
+            messageBox.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
+            messageBox.style.zIndex = "1000";
+            messageBox.style.textAlign = "center";
+            messageBox.style.maxWidth = "80%";
+            messageBox.style.fontFamily = "'Comfortaa', cursive";
+            messageBox.style.color = "#5a3d2b";
+
+            const messageText = document.createElement("p");
+            messageText.textContent = message;
+            messageText.style.marginBottom = "15px";
+            messageText.style.whiteSpace = "pre-wrap"; // Preserve newlines
+
+            const closeButton = document.createElement("button");
+            closeButton.textContent = "OK";
+            closeButton.style.backgroundColor = "#c08457";
+            closeButton.style.color = "#fff";
+            closeButton.style.border = "none";
+            closeButton.style.padding = "8px 20px";
+            closeButton.style.borderRadius = "20px";
+            closeButton.style.cursor = "pointer";
+            closeButton.style.transition = "background-color 0.3s ease";
+            closeButton.onmouseover = () => closeButton.style.backgroundColor = "#a0522d";
+            closeButton.onmouseout = () => closeButton.style.backgroundColor = "#c08457";
+
+            closeButton.onclick = () => document.body.removeChild(messageBox);
+
+            messageBox.appendChild(messageText);
+            messageBox.appendChild(closeButton);
+            document.body.appendChild(messageBox);
+        }
+
+        // --- Initial setup for the Hantar button ---
+        if (userInputField && sendButton) {
+            userInputField.addEventListener('input', function() {
+                if (userInputField.value.trim() !== "") {
+                    sendButton.removeAttribute('disabled');
+                } else {
+                    sendButton.setAttribute('disabled', true);
+                }
+            });
+            sendButton.setAttribute('disabled', true); // Initial state
+        }
+
+
+
+
+
+        // --- Leaderboard Functions ---
+        async function fetchLeaderboard() {
+            try {
+                const response = await fetch('/leaderboard');
+                const data = await response.json();
+
+                leaderboardList.innerHTML = ''; // Clear existing list
+
+                if (data && data.leaderboard && data.leaderboard.length > 0) {
+                    data.leaderboard.forEach((user, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<span class="rank">${index + 1}.</span> <span class="username">${user.username}</span> <span class="points">${user.points} Mata</span>`;
+                        leaderboardList.appendChild(listItem);
+                    });
+                } else {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = "Tiada data papan pendahulu buat masa ini.";
+                    leaderboardList.appendChild(listItem);
+                }
+                leaderboardContainer.style.display = 'block'; // Ensure leaderboard is visible
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                showCustomMessage("Gagal memuat papan pendahulu. Sila cuba lagi.");
+                leaderboardList.innerHTML = '<li>Gagal memuat papan pendahulu.</li>';
+            }
+        }
+
+        // --- NEW: Customization Functions ---
+        async function fetchCustomizations() {
+            // In a real application, this would fetch data from your backend
+            // For now, we'll use the hardcoded `availableCustomizations` object
+            try {
+                // Simulate fetching from backend
+                const response = await fetch('/customizations'); // You'll need to implement this endpoint
+                const data = await response.json();
+                if (data && data.customizations) {
+                    // availableCustomizations.avatars removed
+                    availableCustomizations.user_avatars = data.customizations.user_avatars || availableCustomizations.user_avatars;
+                    availableCustomizations.user_bubbles = data.customizations.user_bubbles || availableCustomizations.user_bubbles;
+                    availableCustomizations.bot_bubbles = data.customizations.bot_bubbles || availableCustomizations.bot_bubbles;
+                    availableCustomizations.owned_customizations = data.owned_customizations; // This is crucial for owned items
+                    // Also update current user customizations if they are logged in
+                    if (currentUsername !== "guest") {
+                        // currentUserCustomizations.bot_avatar_url removed
+                        currentUserCustomizations.user_avatar_url = data.current_user_customizations.user_avatar_url || currentUserCustomizations.user_avatar_url;
+                        currentUserCustomizations.user_bubble_class = data.current_user_customizations.user_bubble_class || currentUserCustomizations.user_bubble_class;
+                        currentUserCustomizations.bot_bubble_class = data.current_user_customizations.bot_bubble_class || currentUserCustomizations.bot_bubble_class;
+                    }
+                }
+            } catch (error) {
+                console.warn("Could not fetch customizations from backend. Using default/hardcoded values.", error);
+                // Fallback to hardcoded values if backend fetch fails
+            }
+            renderCustomizationOptions();
+            updateChatAppearance(); // Ensure chat reflects initial customizations
+        }
+
+        function renderCustomizationOptions() {
+            // botAvatarOptionsContainer.innerHTML removed
+            userAvatarOptionsContainer.innerHTML = '';
+            userBubbleOptionsContainer.innerHTML = '';
+            botBubbleOptionsContainer.innerHTML = '';
+
+            // Helper to check if an item is owned
+            const isItemOwned = (categoryKey, value) => {
+                return (availableCustomizations.owned_customizations[categoryKey] || []).includes(value);
+            };
+
+            // Render User Avatars
+            availableCustomizations.user_avatars.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'customization-item';
+                if (currentUserCustomizations.user_avatar_url === item.value) {
+                    itemDiv.classList.add('selected');
+                }
+                const owned = isItemOwned('user_avatars', item.value);
+                if (owned) {
+                    itemDiv.innerHTML = `<span class="owned-tag">Dimiliki</span>`;
+                }
+                itemDiv.innerHTML += `
+                    <img src="${item.value}" alt="${item.name}" onerror="this.src='https://placehold.co/60x60/CCCCCC/000000?text=Error'">
+                    <span>${item.name}</span>
+                    <span class="cost">${owned ? 'Guna' : item.cost + ' Mata'}</span>
+                `;
+                itemDiv.onclick = () => applyCustomization('user_avatar_url', item.value, item.cost);
+                userAvatarOptionsContainer.appendChild(itemDiv);
+            });
+
+            // Render User Bubbles
+            availableCustomizations.user_bubbles.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'customization-item';
+                if (currentUserCustomizations.user_bubble_class === item.value) {
+                    itemDiv.classList.add('selected');
+                }
+                const owned = isItemOwned('user_bubbles', item.value);
+                if (owned) {
+                    itemDiv.innerHTML = `<span class="owned-tag">Dimiliki</span>`;
+                }
+                itemDiv.innerHTML += `
+                    <div class="color-box ${item.value}"></div>
+                    <span>${item.name}</span>
+                    <span class="cost">${owned ? 'Guna' : item.cost + ' Mata'}</span>
+                `;
+                itemDiv.onclick = () => applyCustomization('user_bubble_class', item.value, item.cost);
+                userBubbleOptionsContainer.appendChild(itemDiv);
+            });
+
+            // Render Bot Bubbles
+            availableCustomizations.bot_bubbles.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'customization-item';
+                if (currentUserCustomizations.bot_bubble_class === item.value) {
+                    itemDiv.classList.add('selected');
+                }
+                const owned = isItemOwned('bot_bubbles', item.value);
+                if (owned) {
+                    itemDiv.innerHTML = `<span class="owned-tag">Dimiliki</span>`;
+                }
+                itemDiv.innerHTML += `
+                    <div class="color-box ${item.value}"></div>
+                    <span>${item.name}</span>
+                    <span class="cost">${owned ? 'Guna' : item.cost + ' Mata'}</span>
+                `;
+                itemDiv.onclick = () => applyCustomization('bot_bubble_class', item.value, item.cost);
+                botBubbleOptionsContainer.appendChild(itemDiv);
+            });
+        }
+
+        async function applyCustomization(type, value, cost) {
+            if (currentUsername === "guest") {
+                showCustomMessage("Sila log masuk untuk menyesuaikan Nenek Bot anda!");
+                return;
+            }
+
+            // Determine the category key for owned_customizations
+            let categoryKey;
+            // if (type === 'bot_avatar_url') categoryKey = 'avatars'; // Removed
+            if (type === 'user_avatar_url') categoryKey = 'user_avatars';
+            else if (type === 'user_bubble_class') categoryKey = 'user_bubbles';
+            else if (type === 'bot_bubble_class') categoryKey = 'bot_bubbles';
+
+            // Check if already selected
+            if (currentUserCustomizations[type] === value) {
+                showCustomMessage(`Anda sudah menggunakan pilihan ini.`);
+                return;
+            }
+
+            const itemOwned = (availableCustomizations.owned_customizations[categoryKey] || []).includes(value);
+
+            if (!itemOwned && parseInt(displayPoints.textContent) < cost) {
+                showCustomMessage(`Anda tidak mempunyai mata yang mencukupi. Anda memerlukan ${cost} mata.`);
+                return;
+            }
+
+            try {
+                const response = await fetch('/apply_customization', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, value })
+                });
+                const data = await response.json();
+
+                showCustomMessage(data.message);
+                if (response.ok) {
+                    currentUserCustomizations[type] = value;
+                    userPointsSpan.textContent = data.points;
+                    displayPoints.textContent = data.points;
+
+                    // Update the owned status locally if it was purchased
+                    if (!itemOwned) {
+                        if (!availableCustomizations.owned_customizations[categoryKey]) {
+                            availableCustomizations.owned_customizations[categoryKey] = [];
+                        }
+                        if (!availableCustomizations.owned_customizations[categoryKey].includes(value)) {
+                            availableCustomizations.owned_customizations[categoryKey].push(value);
+                        }
+                    }
+                    updateChatAppearance();
+                    renderCustomizationOptions(); // Re-render to update selected state and owned tags
+                }
+            } catch (error) {
+                console.error("Error applying customization:", error);
+                showCustomMessage("Gagal menerapkan penyesuaian. Sila cuba lagi.");
+            }
+        }
+
+        function updateChatAppearance() {
+            // Update Nenek Bot's avatar in header - REMOVED DYNAMIC UPDATE
+            // nenekBotAvatarDisplay.src = currentUserCustomizations.bot_avatar_url;
+
+            // Update chat bubbles and avatars for existing messages
+            const chatMessages = chatBox.children;
+            for (let i = 0; i < chatMessages.length; i++) {
+                const messageDiv = chatMessages[i];
+                if (messageDiv.classList.contains('user-message-container')) { // Target the user message container
+                    const userAvatarInMessage = messageDiv.querySelector('.user-avatar');
+                    const userBubbleTextElement = messageDiv.querySelector('.user-bubble-text');
+
+                    if (userAvatarInMessage) {
+                        userAvatarInMessage.src = currentUserCustomizations.user_avatar_url;
+                    }
+                    if (userBubbleTextElement) {
+                        // Remove all existing user bubble classes and add the new one
+                        userBubbleTextElement.classList.remove('user-bubble-default', 'user-bubble-blue', 'user-bubble-green', 'user-bubble-pink', 'user-bubble-dark');
+                        userBubbleTextElement.classList.add(currentUserCustomizations.user_bubble_class);
+                    }
+                } else if (messageDiv.classList.contains('bot-reply-container')) {
+                    // Find the actual bot message div inside bot-reply-content
+                    const botReplyTextElement = messageDiv.querySelector('.bot-reply-text');
+                    if (botReplyTextElement) {
+                        // Remove all existing bot bubble classes and add the new one
+                        botReplyTextElement.classList.remove('bot-bubble-default', 'bot-bubble-light-blue', 'bot-bubble-light-green', 'bot-bubble-light-pink', 'bot-bubble-grey');
+                        botReplyTextElement.classList.add(currentUserCustomizations.bot_bubble_class);
+                    }
+                    // Update bot avatar in existing messages if necessary (though new messages handle this)
+                    // The bot's avatar is now static, so no dynamic update here
+                    // const botAvatarInMessage = messageDiv.querySelector('.bot-avatar');
+                    // if (botAvatarInMessage) {
+                    //     botAvatarInMessage.src = currentUserCustomizations.bot_avatar_url;
+                    // }
+                }
+            }
+        }
+
+
+
+         // --- NEW: Community Chat Functions ---
+        async function sendCommunityChatMessage() {
+            console.log("sendCommunityChatMessage called!"); // Add this line for debugging
+            if (currentUsername === "guest") {
+                showCustomMessage("Sila log masuk untuk menghantar mesej!");
+                return;
+            }
+
+            const message = communityChatInput.value.trim();
+            if (!message) {
+                showCustomMessage("Mesej tidak boleh kosong.");
+                return;
+            }
+
+            sendCommunityChatButton.disabled = true;
+            communityChatInput.disabled = true;
+            sendMessageSound.play(); // Play sound here
+
+            try {
+                const response = await fetch('/post_community_chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    communityChatInput.value = '';
+                    fetchCommunityChat(); // Refresh chat to show new message
+
+                } else {
+                    showCustomMessage(data.message || "Gagal menghantar mesej. Sila cuba lagi.");
+                }
+            } catch (error) {
+                console.error("Error sending community chat message:", error);
+                showCustomMessage("Gagal menghantar mesej. Sila cuba lagi.");
+            } finally {
+                sendCommunityChatButton.disabled = false;
+                communityChatInput.disabled = false;
+            }
+        }
+
+        async function fetchCommunityChat() {
+            try {
+                const response = await fetch('/get_community_chat');
+                const data = await response.json();
+
+                communityChatBox.innerHTML = ''; // Clear existing messages
+
+                if (data && data.chat_history && data.chat_history.length > 0) {
+                    data.chat_history.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'community-chat-message';
+
+                        const avatarImg = document.createElement('img');
+                        avatarImg.className = 'avatar';
+                        // Use user_avatar_url from the message data, fallback to default if not available
+                        avatarImg.src = msg.user_avatar_url || "{{ url_for('static', filename='user_default.png') }}";
+                        avatarImg.alt = `${msg.username} Avatar`;
+                        messageDiv.appendChild(avatarImg);
+
+                        const contentDiv = document.createElement('div');
+                        // Use user_bubble_class from the message data, fallback to default
+                        contentDiv.className = `message-content ${msg.user_bubble_class || 'user-bubble-default'}`;
+
+                        const usernameSpan = document.createElement('div');
+                        usernameSpan.className = 'username';
+                        usernameSpan.textContent = msg.username;
+                        contentDiv.appendChild(usernameSpan);
+
+                        const messageText = document.createElement('p');
+                        messageText.textContent = msg.message;
+                        messageText.style.margin = '0';
+                        contentDiv.appendChild(messageText);
+
+                        const timestampSpan = document.createElement('div');
+                        timestampSpan.className = 'timestamp';
+                        const date = new Date(msg.timestamp);
+                        timestampSpan.textContent = date.toLocaleString();
+                        contentDiv.appendChild(timestampSpan);
+
+                        messageDiv.appendChild(contentDiv);
+                        communityChatBox.appendChild(messageDiv);
+                    });
+                    communityChatBox.scrollTop = communityChatBox.scrollHeight; // Scroll to bottom
+                } else {
+                    const noMessage = document.createElement('p');
+                    noMessage.textContent = "Tiada mesej dalam perbincangan ini lagi. Jadi yang pertama hantar mesej!";
+                    noMessage.style.textAlign = 'center';
+                    noMessage.style.color = '#777';
+                    communityChatBox.appendChild(noMessage);
+                }
+            } catch (error) {
+                console.error("Error fetching community chat:", error);
+                communityChatBox.innerHTML = '<p style="text-align:center; color:red;">Gagal memuat mesej. Sila cuba lagi.</p>';
+            }
+        }
+
+        function checkCommunityChatEnter(event) {
+            if (event.key === "Enter" && communityChatInput.value.trim() !== "") {
+                sendCommunityChatMessage();
+            }
+        }
+
+        // --- Initial setup and Event Listeners ---
+        window.addEventListener('load', () => {
+            checkUserStatus(); // Fetch user status on load
+            loadCategories(); // Load categories
+            fetchLeaderboard(); // Load leaderboard
+            // fetchCommunityPantang(); // This function is not defined in the provided HTML/JS, commenting out
+            fetchCommunityChat(); // Initial fetch for community chat
+
+            // Start background music
+            // isAudioEnabled is not defined, assuming it's a global or a default to true for testing
+            // If you want to control music playback based on user interaction, you might need a dedicated toggle button
+            // For now, let's assume it should play on load if not explicitly controlled otherwise.
+            backgroundMusic.play().catch(e => console.error("Error playing background music on load:", e));
+
+
+            // Set up auto-refresh for community chat (e.g., every 5 seconds)
+            communityChatInterval = setInterval(fetchCommunityChat, 5000); // Refresh every 5 seconds
+        });
+
+        // Clear interval when leaving the page (optional, but good practice)
+        window.addEventListener('beforeunload', () => {
+            clearInterval(communityChatInterval);
+        });
+    </script>
+</body>
+</html>
